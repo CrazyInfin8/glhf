@@ -1,13 +1,20 @@
 package glhf
 
-import "github.com/hajimehoshi/ebiten"
+import (
+	"GLHF/driver"
+	"image"
 
-var g *Game
+	"github.com/hajimehoshi/ebiten"
+)
 
-type Game struct {
+type Game[Img image.Image] struct {
 	width, height int
 	cameras []*Camera
 	state IState
+
+	drivers struct {
+		driver.GraphicsDriver[Img]
+	}
 
 	pixelPerfect bool
 	defaultZoom float64

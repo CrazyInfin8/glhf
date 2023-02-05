@@ -1,4 +1,4 @@
-module github.com/crazyinfin8/glhf
+module GLHF
 
 go 1.18
 

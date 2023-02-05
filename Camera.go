@@ -54,4 +54,6 @@ func NewCamera(x, y float64, w, h int, zoom float64) *Camera {
 	return &c
 }
 
-func (c *Camera)Draw() {}
+func (c *Camera)Draw() {
+	
+}
