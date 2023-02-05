@@ -56,7 +56,6 @@ func TestGroup(t *testing.T) {
 	t.Log("group1 i2 ID: ", group1.ID())
 	t.Log("group2 i2 ID: ", group2.ID())
 
-	
 	expect(t, group1.Add(item1), true, "Expected to add item1")
 	expect(t, group1.Add(item1), false, "Expected to fail. Item1 is already added")
 	expect(t, group1.Add(nil), false, "Expected to fail. Cannot add nil")

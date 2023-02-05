@@ -1,14 +1,12 @@
 package glhf
 
-import "github.com/hajimehoshi/ebiten"
-
 type (
 	Camera struct {
 		iBasic
 		x, y float64
 		width, height int
 
-		frame *ebiten.Image
+		scroll Point
 
 		pixelPerfect bool
 		initialZoom, zoom float64
@@ -35,22 +33,19 @@ func NewCamera(x, y float64, w, h int, zoom float64) *Camera {
 	}
 	// TODO: should width/height < 0 flip camera?
 	if c.width <= 0 {
-		c.width = g.Width()
+		c.width = g.cfg.StageWidth
 	}
 	if c.height <= 0 {
-		c.height = g.Height()
+		c.height = g.cfg.StageHeight
 	}
 	// c.pixelPerfect = g.pixelPerfect
-	var filter ebiten.Filter = ebiten.FilterLinear
-	if c.pixelPerfect {
-		filter = ebiten.FilterNearest
-	}
+	
 	// if zoom == 0 {
 		// zoom = g.defaultZoom
 	// }
 	c.zoom = zoom
 	c.initialZoom = zoom
-	c.frame = unwrap(ebiten.NewImage(c.width, c.height, filter))
+
 	return &c
 }
 

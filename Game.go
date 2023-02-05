@@ -1,73 +1,75 @@
 package glhf
 
-import "github.com/hajimehoshi/ebiten"
+import "github.com/crazyinfin8/glhf/driver"
 
 var g *Game
 
 type Game struct {
-	width, height int
-	cameras []*Camera
-	state IState
+	cfg driver.WindowProviderConfig
+
+	cameras    []*Camera
+	state      IState
+	resizeMode ResizeMode
 
 	pixelPerfect bool
-	defaultZoom float64
+	defaultZoom  float64
 }
 
-type game = Game
+type ResizeMode byte
 
-func (g *game)Update(screen *ebiten.Image) error {
-	g.state.Update(0)
-	g.state.Draw()
+const (
+	ResizeModeDefault ResizeMode = iota
+	ResizeModeScale
+	ResizeModeResize
+)
 
-	for _, camera := range g.cameras {
-		opt := ebiten.DrawImageOptions{}
-		opt.GeoM.Translate(camera.x, camera.y)
-		screen.DrawImage(camera.frame, &opt)
+func NewGame(width, height int) *Game {
+	g := new(Game)
+	if width < 1 {
+		width = driver.Drivers.DefaultWidth
 	}
-	return nil
+	if height < 0 {
+		height = driver.Drivers.DefaultHeight
+	}
+	g.cfg = driver.WindowProviderConfig{
+		StageWidth: width, StageHeight: height,
+		WindowMode:       driver.WindowModeDefault,
+		ResetTimeDeltaFn: g.resetTimeDelta,
+		UpdateFn:         g.update,
+		RenderFn:         g.render,
+		ResizeFn:         g.resize,
+	}
+
+	driver.Drivers.WindowProvider.Init(&g.cfg)
+
+	return g
 }
 
-func (g *game)Layout(w, h int) (int, int) {
-	return w, h
+func (g *Game) resetTimeDelta() {}
+
+func (g *Game) update() {
+
 }
 
-// func (g *game)Draw(screen *ebiten.Image) {
-//
-// }
+func (g *Game) render(target driver.Graphic) {
 
-type exit byte
+}
 
-func (exit) Error() string { return "graceful exit" }
-
-const exit_success = exit(0)
-
-func (g *Game)Run(s IState) error {
-	if err := ebiten.RunGame(g); err == exit_success {
-		return nil
-	} else {
-		return err
+func (g *Game) resize(width, height int) (newWidth, newHeight int) {
+	switch g.resizeMode {
+	default:
+		fallthrough
+	case ResizeModeDefault, ResizeModeScale:
+		return g.cfg.StageWidth, g.cfg.StageHeight
+	case ResizeModeResize:
+		g.cfg.StageWidth, g.cfg.StageHeight = width, height
+		return width, height
 	}
 }
 
-func createGame(width, height int) {
-	if g != nil {
-		panic("Game is already created")
-	}
-	g = new(Game)
-	g.pixelPerfect = false
-	g.defaultZoom = 1
-}
+func (g *Game) Start(state IState) {
+	g.state = state
+	state.Create()
 
-func (g *game) Width() int {
-	if g == nil {
-		return 0
-	}
-	return g.width
-}
-
-func (g *game) Height() int {
-	if g == nil {
-		return 0
-	}
-	return g.width
+	driver.Drivers.Start()
 }

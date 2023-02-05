@@ -1,5 +1,22 @@
 package glhf
 
+import (
+	"github.com/crazyinfin8/glhf/math"
+)
+
+const (
+	// ToRadians is a value that, when multiplied by an angle in degrees, will
+	// convert that angle to radians
+	ToRadians = math.ToRadians
+
+	// ToDegrees is a value that, when multiplied by an angle in radians, will
+	// convert that angle to degrees
+	ToDegrees = math.ToDegrees
+
+	HalfPi    = math.HalfPi
+	QuarterPi = math.QuarterPi
+)
+
 func checkNil(ptr interface{}, name string) {
 	if ptr == nil {
 		panic(name + " is nil. did you forget to store reference?")
@@ -19,3 +36,9 @@ func unwrap[T interface{}](t T, e error) T {
 	}
 	return t
 }
+
+type Matrix = math.Matrix
+
+type Rect = math.Rect
+
+type Point = math.Point

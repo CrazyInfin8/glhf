@@ -6,7 +6,7 @@ type (
 		Destroy()
 	}
 	Listener[T any] struct {
-		handlers   map[Handler[T]]bool
+		handlers    map[Handler[T]]bool
 		toDestroy   []Handler[T]
 		dispatching bool
 	}
@@ -18,9 +18,9 @@ func NewListener[T any]() *Listener[T] {
 	return l
 }
 
-func (l *Listener[T])Add(handler Handler[T], once bool) {
+func (l *Listener[T]) Add(handler Handler[T], once bool) {
 	if handler == nil {
 		return
 	}
-	
+
 }
