@@ -1,6 +1,7 @@
 package glhf
 
 import (
+	"github.com/crazyinfin8/glhf/driver"
 	"github.com/crazyinfin8/glhf/math"
 )
 
@@ -37,8 +38,10 @@ func unwrap[T interface{}](t T, e error) T {
 	return t
 }
 
-type Matrix = math.Matrix
+
 
 type Rect = math.Rect
 
 type Point = math.Point
+
+type Graphic = driver.Graphic

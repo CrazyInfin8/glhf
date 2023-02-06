@@ -2,6 +2,7 @@ package math
 
 import (
 	"image"
+	"math"
 )
 
 type Rect struct {
@@ -73,4 +74,41 @@ func (r Rect) ToImageRect() image.Rectangle {
 		Min: image.Point{int(r.Left()), int(r.Top())},
 		Max: image.Point{int(r.Right()), int(r.Bottom())},
 	}
+}
+
+func (r Rect) RotatedBounds(degrees float64, origin Point) Rect {
+	degrees = math.Mod(degrees, 360)
+	if degrees == 0 {
+		return r
+	}
+
+	if degrees < 0 {
+		degrees += 360
+	}
+
+	radians := degrees * ToRadians
+	sin, cos := math.Sincos(radians)
+
+	left := -origin.X
+	top := -origin.Y
+	right := -origin.X + r.Width
+	bottom := -origin.Y + r.Height
+
+	if degrees < 90 {
+		r.X = r.X + origin.X + cos*left - sin*bottom
+		r.Y = r.Y + origin.Y + sin*left + cos*top
+	} else if degrees < 180 {
+		r.X = r.X + origin.X + cos*right - sin*bottom
+		r.Y = r.Y + origin.Y + sin*left + cos*bottom
+	} else if degrees < 270 {
+		r.X = r.X + origin.X + cos*right - sin*top
+		r.Y = r.Y + origin.Y + sin*right + cos*bottom
+	} else {
+		r.X = r.X + origin.X + cos*left - sin*top
+		r.Y = r.Y + origin.Y + sin*right + cos*top
+	}
+
+	r.Width, r.Height = math.Abs(cos*r.Height)+math.Abs(sin*r.Width), math.Abs(cos*r.Width)+math.Abs(sin*r.Height)
+
+	return r
 }

@@ -31,5 +31,6 @@ func NewState(maxLen int) *State {
 func (s *State) Create() {}
 
 func (s *State) Draw() {
+	println(s)
 	s.iGroup.Draw()
 }

@@ -8,6 +8,7 @@ type Game struct {
 	cfg driver.WindowProviderConfig
 
 	cameras    []*Camera
+	camera     *Camera
 	state      IState
 	resizeMode ResizeMode
 
@@ -24,13 +25,14 @@ const (
 )
 
 func NewGame(width, height int) *Game {
-	g := new(Game)
+	g = new(Game)
 	if width < 1 {
 		width = driver.Drivers.DefaultWidth
 	}
 	if height < 0 {
 		height = driver.Drivers.DefaultHeight
 	}
+	g.defaultZoom = 1
 	g.cfg = driver.WindowProviderConfig{
 		StageWidth: width, StageHeight: height,
 		WindowMode:       driver.WindowModeDefault,
@@ -48,11 +50,22 @@ func NewGame(width, height int) *Game {
 func (g *Game) resetTimeDelta() {}
 
 func (g *Game) update() {
-
+	g.state.Update(0)
 }
 
 func (g *Game) render(target driver.Graphic) {
+	println("Render called!")
+	println(g)
+	println(g.state)
+	g.state.Draw()
 
+
+	for _, c := range g.cameras {
+		mat := Identity()
+		mat.Translate(c.x, c.y)
+		target.DrawGraphic(c.frame, mat)
+		println("drawn!")
+	}
 }
 
 func (g *Game) resize(width, height int) (newWidth, newHeight int) {
@@ -71,5 +84,21 @@ func (g *Game) Start(state IState) {
 	g.state = state
 	state.Create()
 
+	g.GetCamera()
+
+
 	driver.Drivers.Start()
+}
+
+func (g *Game) GetCamera() *Camera {
+	if g.camera != nil {
+		return g.camera
+	}
+	if len(g.cameras) != 0 {
+		g.camera = g.cameras[0]
+		return g.camera
+	}
+	g.cameras = append(g.cameras, NewCamera(0, 0, 0, 0, 0))
+	g.camera = g.cameras[0]
+	return g.camera
 }

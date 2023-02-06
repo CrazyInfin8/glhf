@@ -5,6 +5,8 @@ type (
 		iBasic
 		x, y, width, height float64
 
+		scrollFactor Point
+
 		angle float64
 	}
 	iObject = IObject
@@ -21,6 +23,10 @@ type (
 		SetY(y float64)
 		SetPosition(x, y float64)
 		SetSize(w, h float64)
+		String() string
+		GetScreenPosition(c *Camera) Point
+		ScrollFactor() Point
+		SetScrollFactor(p Point)
 	}
 )
 
@@ -60,3 +66,15 @@ func (o *Object) SetPosition(x, y float64) { o.x, o.y = x, y }
 func (o *Object) SetSize(w, h float64) { o.width, o.height = w, h }
 
 func (o *Object) String() string { return "[Object]" }
+
+func (o *Object) GetScreenPosition(c *Camera) Point {
+	if c == nil {
+		c = g.GetCamera()
+	}
+	var p Point = Point{c.x, c.y}
+	p.Sub(c.scroll.X*o.scrollFactor.X, c.scroll.Y*o.scrollFactor.Y)
+	return p
+}
+
+func (o *Object) ScrollFactor() Point     { return o.scrollFactor }
+func (o *Object) SetScrollFactor(p Point) { o.scrollFactor = p }

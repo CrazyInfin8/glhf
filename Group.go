@@ -20,6 +20,8 @@ type (
 		group() *TypedGroup[T]
 		Len() int
 		ForEach(fn func(member T), recurse bool)
+		Add(newMember T) bool
+		FirstNil() int
 	}
 
 	SpriteGroup  = TypedGroup[ISprite]

@@ -2,6 +2,7 @@ package ebiten
 
 import (
 	"image"
+	"image/color"
 
 	"github.com/crazyinfin8/glhf/driver"
 	"github.com/crazyinfin8/glhf/math"
@@ -22,16 +23,16 @@ type Graphic struct{ *ebiten.Image }
 
 func (g Graphic) DrawGraphic(src driver.Graphic, matrix math.Matrix) {
 	geom := matrixToGeoM(matrix)
-	if g, ok := src.(Graphic); ok {
-		g.DrawImage(g.Image, &ebiten.DrawImageOptions{
+	if src, ok := src.(Graphic); ok {
+		g.DrawImage(src.Image, &ebiten.DrawImageOptions{
 			GeoM: geom,
 		})
-	} else {
-		img := ebiten.NewImageFromImage(src)
-		g.DrawImage(img, &ebiten.DrawImageOptions{
-			GeoM: geom,
-		})
+		return
 	}
+	img := ebiten.NewImageFromImage(src)
+	g.DrawImage(img, &ebiten.DrawImageOptions{
+		GeoM: geom,
+	})
 }
 
 func (g Graphic) SubGraphic(r image.Rectangle) driver.Graphic {
@@ -54,4 +55,18 @@ func (GraphicProvider) NewGraphic(width, height int) driver.Graphic {
 
 func (GraphicProvider) NewGraphicFromImage(img image.Image) driver.Graphic {
 	return Graphic{ebiten.NewImageFromImage(img)}
+}
+
+func (g Graphic) ResizeGraphic(r image.Rectangle) driver.Graphic {
+	var geom ebiten.GeoM
+	geom.Translate(-float64(r.Min.X), -float64(r.Min.Y))
+	img := ebiten.NewImage(r.Dx(), r.Dy())
+	img.DrawImage(g.Image, &ebiten.DrawImageOptions{
+		GeoM: geom,
+	})
+	return Graphic{img}
+}
+
+func (g Graphic) Fill(c color.Color) {
+	g.Image.Fill(c)
 }

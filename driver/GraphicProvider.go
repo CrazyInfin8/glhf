@@ -2,6 +2,7 @@ package driver
 
 import (
 	"image"
+	"image/color"
 	"image/draw"
 
 	"github.com/crazyinfin8/glhf/math"
@@ -24,4 +25,6 @@ type Graphic interface {
 	// DrawGraphic draws g onto this graphic with the given translation matrix
 	DrawGraphic(src Graphic, matrix math.Matrix)
 	SubGraphic(r image.Rectangle) Graphic
+	ResizeGraphic(r image.Rectangle)Graphic
+	Fill(c color.Color)
 }
