@@ -1,7 +1,8 @@
 package math
 
-import "math"
-
+import (
+	"math"
+)
 
 type Matrix struct {
 	A, B, TX,
@@ -69,10 +70,10 @@ func (m *Matrix) Invert() {
 	m.C *= -norm
 }
 
-func (m *Matrix) RotateTrig(sin, cos float64) {
+func (m *Matrix) RotateTrig(cos, sin float64) {
 	m.A, m.B = m.A*cos-m.B*sin, m.A*sin+m.B*cos
 	m.C, m.D = m.C*cos-m.D*sin, m.C*sin+m.D*cos
-	m.TX, m.TY = m.TX*cos-m.TY*sin, m.TX*sin+m.TY*cos
+	m.TX, m.TY = m.TX*cos+m.TY*sin, m.TY*cos-m.TX*sin
 }
 
 func (m *Matrix) Rotate(angle float64) {
@@ -97,11 +98,11 @@ func (m *Matrix) Rotate180() {
 }
 
 func (m *Matrix) Rotate90Clockwise() {
-	m.A, m.B, m.C, m.D, m.TX, m.TY = m.B, -m.A, m.D, -m.C, m.TY, -m.TX
+	m.A, m.B, m.C, m.D, m.TX, m.TY = m.B, -m.A, m.D, -m.C, -m.TY, m.TX
 }
 
 func (m *Matrix) Rotate90CounterClockwise() {
-	m.A, m.B, m.C, m.D, m.TX, m.TY = -m.B, m.A, -m.D, m.C, -m.TY, m.TX
+	m.A, m.B, m.C, m.D, m.TX, m.TY = -m.B, m.A, -m.D, m.C, m.TY, -m.TX
 }
 
 func (m *Matrix) Scale(x, y float64) {

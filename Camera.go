@@ -1,6 +1,8 @@
 package glhf
 
 import "github.com/crazyinfin8/glhf/driver"
+import "image/color"
+
 
 type (
 	Camera struct {
@@ -20,7 +22,7 @@ type (
 
 		viewOffset Rect
 
-		color Color
+		color color.Color
 	}
 	iCamera = ICamera
 	ICamera interface {
@@ -57,8 +59,6 @@ func NewCamera(x, y float64, w, h int, zoom float64) *Camera {
 	c.initialZoom = zoom
 
 	c.calcViewOffset()
-	println(w, h)
-	println(g.cfg.StageWidth, g.cfg.StageHeight)
 	c.frame = driver.Drivers.NewGraphic(c.width, c.height)
 
 	return &c
@@ -86,4 +86,12 @@ func (c *Camera) calcViewOffset() {
 	c.viewOffset.Y = 0.5 * float64(c.height) * (c.scale.Y - c.initialZoom) / c.scale.Y
 	c.viewOffset.Height = float64(c.height) - c.viewOffset.Y
 	// viewWidth = height - 2 * viewOffsetY;
+}
+
+func (c *Camera) Clear() {
+	c.frame.Fill(c.color)
+}
+
+func (c *Camera) SetPosition(p Point) {
+	c.x, c.y = p.X, p.Y
 }

@@ -54,17 +54,15 @@ func (g *Game) update() {
 }
 
 func (g *Game) render(target driver.Graphic) {
-	println("Render called!")
-	println(g)
-	println(g.state)
+	for _, c := range g.cameras {
+		c.frame.Fill(c.color)
+	}
 	g.state.Draw()
-
 
 	for _, c := range g.cameras {
 		mat := Identity()
 		mat.Translate(c.x, c.y)
 		target.DrawGraphic(c.frame, mat)
-		println("drawn!")
 	}
 }
 
@@ -85,7 +83,6 @@ func (g *Game) Start(state IState) {
 	state.Create()
 
 	g.GetCamera()
-
 
 	driver.Drivers.Start()
 }

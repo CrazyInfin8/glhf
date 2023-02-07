@@ -43,6 +43,7 @@ func (p Point) IsOrigin() bool {
 }
 
 func (p *Point) Transform(mat Matrix) {
+	// p.X, p.Y = mat.Apply(p.XY())
 	x, y := p.X, p.Y
 	p.X = x*mat.A + y*mat.C + mat.TX
 	p.Y = x*mat.B + y*mat.D + mat.TY

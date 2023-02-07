@@ -5,9 +5,10 @@ import (
 
 	glhf "github.com/crazyinfin8/glhf"
 )
-
+var g *glhf.Game
 func main() {
-	glhf.NewGame(600, 400).Start(&PlayState{})
+	g = glhf.NewGame(600, 400)
+	g.Start(&PlayState{})
 }
 
 type PlayState struct {
@@ -21,16 +22,18 @@ func (s *PlayState) Create() {
 
 	s.sprite = glhf.NewSprite()
 	
+	
 	s.sprite.MakeGraphic(64, 64, glhf.Color(0xFFABCDEF).RGBA())
-
+	s.sprite.SetOrigin(glhf.Point{32, 32})
+	s.sprite.SetPosition(300, 200)
 	if !s.Add(s.sprite) {
 		panic("Couldn't add sprite")
 	}
-	println("my sprite is:", s.sprite)
-	println("my sprite is:", s.sprite)
-	println("my sprite is:", s.sprite)
 }
 
+var i float64 = 0 
+
 func (s *PlayState) Update(time.Duration) {
-	s.sprite.SetPosition(200, 200)
+	i += 1
+	s.sprite.SetAngle(i)
 }

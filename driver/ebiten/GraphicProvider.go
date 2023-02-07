@@ -11,8 +11,6 @@ import (
 	"unsafe"
 )
 
-// var _ driver.GraphicProvider = GraphicProvider{}
-
 type GraphicProvider struct{}
 
 func init() {
@@ -68,5 +66,9 @@ func (g Graphic) ResizeGraphic(r image.Rectangle) driver.Graphic {
 }
 
 func (g Graphic) Fill(c color.Color) {
+	if c == nil {
+		g.Image.Clear()
+		return
+	}
 	g.Image.Fill(c)
 }

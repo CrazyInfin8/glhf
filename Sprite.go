@@ -30,40 +30,32 @@ func NewSprite() *Sprite {
 	s := Sprite{}
 	s.iObject = NewObject(0, 0, 0, 0)
 	s.scale = Point{1, 1}
-
+	s.SetScrollFactor(Point{1, 1})
 	return &s
 }
 
 func (s *Sprite) MakeGraphic(width, height int, color color.Color) {
-
-	println("sprite passed is:", s.sprite)
-	println("sprite passed is:", s.sprite)
 	s.frame = NewFrameWithColor(width, height, color)
-	println("frame is: ", s.frame)
 
 	s.frameWidth = width
 	s.frameHeight = height
 	s.SetSize(float64(width), float64(height))
-	println("graphics made!")
 }
 
 func (s *Sprite) sprite() *Sprite { return s }
 
 func (s *Sprite) Draw() {
 	if s.frame == nil {
-		println("frame is nil", s.frame)
 		return
 	}
 	for _, c := range g.cameras {
 		if !c.Visible() || !c.Exists() || !s.IsOnScreen(c) {
-			println("skipped: ", c)
 			continue
 		}
 
 		point := s.GetScreenPosition(c)
 		point.SubPoint(s.offset)
 
-		println("drawing sprite")
 		s.drawComplex(c, point)
 	}
 }
@@ -103,13 +95,13 @@ func (s *Sprite) drawComplex(c *Camera, point Point) {
 	if s.angle != 0 {
 		s.updateTrig()
 		mat.RotateTrig(s.sinAngle, s.cosAngle)
+		// mat.Rotate(s.angle)
 	}
 
-	point.Add(s.origin.X, s.origin.Y)
+	// point.Add(s.origin.X, s.origin.Y)
 	mat.Translate(point.X, point.Y)
 
 	c.DrawGraphic(s.frame.graphic, mat)
-	println("sprite drawn!")
 }
 
 func (s *Sprite) updateTrig() {
@@ -118,3 +110,12 @@ func (s *Sprite) updateTrig() {
 		s.angleUpdated = false
 	}
 }
+
+func (s *Sprite) SetAngle(degrees float64) { 
+	s.angle = degrees
+	s.angleUpdated = true
+}
+
+func (s *Sprite) SetOrigin(p Point) {
+	s.origin = p
+} 
