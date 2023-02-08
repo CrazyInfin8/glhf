@@ -5,7 +5,8 @@ import (
 )
 
 func TestAssert(t *testing.T) {
-	warn("Hello world")
+	assetPath := NewAssetPath("glhf/file/name/split/by/colons")
+	t.Logf("%q, %q, %q", assetPath.Mount, assetPath.Path, assetPath)
 }
 
 func TestTypes(t *testing.T) {

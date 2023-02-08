@@ -27,4 +27,5 @@ type Graphic interface {
 	SubGraphic(r image.Rectangle) Graphic
 	ResizeGraphic(r image.Rectangle)Graphic
 	Fill(c color.Color)
+	Clone() Graphic
 }

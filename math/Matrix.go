@@ -70,7 +70,7 @@ func (m *Matrix) Invert() {
 	m.C *= -norm
 }
 
-func (m *Matrix) RotateTrig(cos, sin float64) {
+func (m *Matrix) RotateTrig(sin, cos float64) {
 	m.A, m.B = m.A*cos-m.B*sin, m.A*sin+m.B*cos
 	m.C, m.D = m.C*cos-m.D*sin, m.C*sin+m.D*cos
 	m.TX, m.TY = m.TX*cos+m.TY*sin, m.TY*cos-m.TX*sin
@@ -92,6 +92,10 @@ func (m *Matrix) Rotate(angle float64) {
 	}
 	m.RotateTrig(math.Sincos(angle * ToRadians))
 }
+
+func (m *Matrix) RotateClockwise(angle float64) { m.Rotate(-angle) }
+
+func (m *Matrix) RotateCounterClockwise(angle float64) { m.Rotate(angle) }
 
 func (m *Matrix) Rotate180() {
 	m.A, m.B, m.C, m.D, m.TX, m.TY = -m.A, -m.B, -m.C, -m.D, -m.TX, -m.TY

@@ -1,11 +1,15 @@
 package main
 
 import (
+	"fmt"
+	"math"
 	"time"
 
 	glhf "github.com/crazyinfin8/glhf"
 )
+
 var g *glhf.Game
+
 func main() {
 	g = glhf.NewGame(600, 400)
 	g.Start(&PlayState{})
@@ -21,19 +25,26 @@ func (s *PlayState) Create() {
 	s.State.Create()
 
 	s.sprite = glhf.NewSprite()
-	
-	
-	s.sprite.MakeGraphic(64, 64, glhf.Color(0xFFABCDEF).RGBA())
-	s.sprite.SetOrigin(glhf.Point{32, 32})
+
+	err := s.sprite.LoadGraphics(glhf.NewAssetPath("glhf:assets/laszlo.png"))
+	if err != nil {
+		panic(err)
+	}
+
+	w, h := s.sprite.Size()
+
+	s.sprite.SetOrigin(glhf.Point{X: w / 2, Y: h / 2})
 	s.sprite.SetPosition(300, 200)
+	s.sprite.SetScale(glhf.Point{X: 0.5, Y: 0.5})
 	if !s.Add(s.sprite) {
 		panic("Couldn't add sprite")
 	}
 }
 
-var i float64 = 0 
+var i float64 = 0
 
 func (s *PlayState) Update(time.Duration) {
 	i += 1
 	s.sprite.SetAngle(i)
+	fmt.Printf("Angle: %f\r", math.Mod(i, 360))
 }

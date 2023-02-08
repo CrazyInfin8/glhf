@@ -72,3 +72,8 @@ func (g Graphic) Fill(c color.Color) {
 	}
 	g.Image.Fill(c)
 }
+
+func (g Graphic) Clone() driver.Graphic {
+	img := ebiten.NewImageFromImage(g.Image)
+	return Graphic{img}
+}

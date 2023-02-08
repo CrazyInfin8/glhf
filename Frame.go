@@ -21,6 +21,17 @@ func NewFrameWithColor(width, height int, c color.Color) *Frame {
 	return f
 }
 
+func NewFrameFromImage(path AssetPath, cache, unique bool) (*Frame, error) {
+	graphic, err := assets.LoadImage(path, true, false)
+	if err != nil {
+		return nil, err
+	}
+
+	f := new(Frame)
+	f.graphic = graphic
+	return f, nil
+}
+
 func (f *Frame) Width() int {
 	return f.graphic.Bounds().Dx()
 }

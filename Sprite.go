@@ -31,6 +31,9 @@ func NewSprite() *Sprite {
 	s.iObject = NewObject(0, 0, 0, 0)
 	s.scale = Point{1, 1}
 	s.SetScrollFactor(Point{1, 1})
+
+	s.sinAngle, s.cosAngle = 0, 1 // results when s.angle == 0
+
 	return &s
 }
 
@@ -40,6 +43,19 @@ func (s *Sprite) MakeGraphic(width, height int, color color.Color) {
 	s.frameWidth = width
 	s.frameHeight = height
 	s.SetSize(float64(width), float64(height))
+}
+
+func (s *Sprite) LoadGraphics(path AssetPath) (err error) {
+	s.frame, err = NewFrameFromImage(path, true, false)
+	if err != nil {
+		return err
+	}
+
+	s.frameWidth = s.frame.Width()
+	s.frameHeight = s.frame.Height()
+
+	s.SetSize(float64(s.frame.Width()), float64(s.frame.Height()))
+	return err
 }
 
 func (s *Sprite) sprite() *Sprite { return s }
@@ -92,7 +108,7 @@ func (s *Sprite) drawComplex(c *Camera, point Point) {
 	mat.Translate(-s.origin.X, -s.origin.Y)
 	mat.Scale(s.scale.X, s.scale.Y)
 
-	if s.angle != 0 {
+	if math.Mod(s.angle, 360) != 0 {
 		s.updateTrig()
 		mat.RotateTrig(s.sinAngle, s.cosAngle)
 		// mat.Rotate(s.angle)
@@ -111,11 +127,13 @@ func (s *Sprite) updateTrig() {
 	}
 }
 
-func (s *Sprite) SetAngle(degrees float64) { 
+func (s *Sprite) SetAngle(degrees float64) {
+	s.angleUpdated = s.angle != degrees
 	s.angle = degrees
-	s.angleUpdated = true
 }
 
 func (s *Sprite) SetOrigin(p Point) {
 	s.origin = p
-} 
+}
+
+func (s *Sprite) SetScale(p Point) { s.scale = p }

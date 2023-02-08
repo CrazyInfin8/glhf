@@ -4,6 +4,8 @@ import "github.com/crazyinfin8/glhf/driver"
 
 var g *Game
 
+func G() *Game { return g }
+
 type Game struct {
 	cfg driver.WindowProviderConfig
 
@@ -12,8 +14,8 @@ type Game struct {
 	state      IState
 	resizeMode ResizeMode
 
-	pixelPerfect bool
-	defaultZoom  float64
+	// pixelPerfect bool
+	defaultZoom float64
 }
 
 type ResizeMode byte
@@ -25,6 +27,10 @@ const (
 )
 
 func NewGame(width, height int) *Game {
+	if g != nil {
+		panic(ErrGameCreatedAlready)
+	}
+
 	g = new(Game)
 	if width < 1 {
 		width = driver.Drivers.DefaultWidth
