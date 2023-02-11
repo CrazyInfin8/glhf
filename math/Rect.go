@@ -5,9 +5,7 @@ import (
 	"math"
 )
 
-type Rect struct {
-	X, Y, Width, Height float64
-}
+type Rect [4]float64
 
 func NewRect(x, y, width, height float64) Rect {
 	return Rect{x, y, width, height}
@@ -22,52 +20,56 @@ func FromImageRect(r image.Rectangle) Rect {
 	}
 }
 
-func FromOffsetAndSize(offset Point, size Vector) Rect {
+func FromOffsetAndSize(offset Point, size Point) Rect {
 	return Rect{
-		offset.X,
-		offset.Y,
-		size.X,
-		size.Y,
+		offset.X(),
+		offset.Y(),
+		size.X(),
+		size.Y(),
 	}
 }
 
+func (r Rect) X() float64                { return r[0] }
+func (r Rect) Y() float64                { return r[1] }
+func (r Rect) Width() float64            { return r[2] }
+func (r Rect) Height() float64           { return r[3] }
+func (r *Rect) SetX(x float64)           { r[0] = x }
+func (r *Rect) SetY(y float64)           { r[1] = y }
+func (r *Rect) SetWidth(w float64)       { r[2] = w }
+func (r *Rect) SetHeight(h float64)      { r[3] = h }
+func (r Rect) Position() Point           { return Point{r[0], r[1]} }
+func (r *Rect) SetPosition(x, y float64) { r[0], r[1] = x, y }
+func (r Rect) Size() Point               { return Point{r[2], r[3]} }
+func (r *Rect) SetSize(w, h float64)     { r[2], r[3] = w, h }
+func (r Rect) Area() float64             { return r[2] * r[3] }
+
 func (r Rect) Top() float64 {
-	if r.Height < 0 {
-		return r.Y + r.Height
+	if r.Height() < 0 {
+		return r.Y() + r.Height()
 	}
-	return r.Y
+	return r.Y()
 }
 
 func (r Rect) Bottom() float64 {
-	if r.Width < 0 {
-		return r.Y
+	if r.Width() < 0 {
+		return r.Y()
 	}
-	return r.Y + r.Height
+	return r.Y() + r.Height()
 }
 
 func (r Rect) Left() float64 {
-	if r.Width < 0 {
-		return r.X + r.Width
+	if r.Width() < 0 {
+		return r[0] + r.Width()
 	}
-	return r.X
+	return r[0]
 }
 
 func (r Rect) Right() float64 {
-	if r.Width < 0 {
-		return r.X
+	if r.Width() < 0 {
+		return r.X()
 	}
-	return r.X + r.Width
+	return r.X() + r.Width()
 }
-
-func (r Rect) Position() Point { return Point{r.X, r.Y} }
-
-func (r *Rect) SetPosition(x, y float64) { r.X, r.Y = x, y }
-
-func (r Rect) Size() Vector { return Vector{r.Width, r.Height} }
-
-func (r *Rect) SetSize(w, h float64) { r.Width, r.Height = w, h }
-
-func (r Rect) Area() float64 { return r.Width * r.Height }
 
 func (r Rect) ToImageRect() image.Rectangle {
 	return image.Rectangle{
@@ -89,26 +91,29 @@ func (r Rect) RotatedBounds(degrees float64, origin Point) Rect {
 	radians := degrees * ToRadians
 	sin, cos := math.Sincos(radians)
 
-	left := -origin.X
-	top := -origin.Y
-	right := -origin.X + r.Width
-	bottom := -origin.Y + r.Height
+	left := -origin.X()
+	top := -origin.Y()
+	right := -origin.X() + r.Width()
+	bottom := -origin.Y() + r.Height()
 
 	if degrees < 90 {
-		r.X = r.X + origin.X + cos*left - sin*bottom
-		r.Y = r.Y + origin.Y + sin*left + cos*top
+		r.SetX(r.X() + origin.X() + cos*left - sin*bottom)
+		r.SetY(r.Y() + origin.Y() + sin*left + cos*top)
 	} else if degrees < 180 {
-		r.X = r.X + origin.X + cos*right - sin*bottom
-		r.Y = r.Y + origin.Y + sin*left + cos*bottom
+		r.SetX(r.X() + origin.X() + cos*right - sin*bottom)
+		r.SetY(r.Y() + origin.Y() + sin*left + cos*bottom)
 	} else if degrees < 270 {
-		r.X = r.X + origin.X + cos*right - sin*top
-		r.Y = r.Y + origin.Y + sin*right + cos*bottom
+		r.SetX(r.X() + origin.X() + cos*right - sin*top)
+		r.SetY(r.Y() + origin.Y() + sin*right + cos*bottom)
 	} else {
-		r.X = r.X + origin.X + cos*left - sin*top
-		r.Y = r.Y + origin.Y + sin*right + cos*top
+		r.SetX(r.X() + origin.X() + cos*left - sin*top)
+		r.SetY(r.Y() + origin.Y() + sin*right + cos*top)
 	}
 
-	r.Width, r.Height = math.Abs(cos*r.Height)+math.Abs(sin*r.Width), math.Abs(cos*r.Width)+math.Abs(sin*r.Height)
+	r.SetSize(
+		math.Abs(cos*r.Height())+math.Abs(sin*r.Width()),
+		math.Abs(cos*r.Width())+math.Abs(sin*r.Height()),
+	)
 
 	return r
 }

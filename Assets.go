@@ -174,3 +174,5 @@ skipCacheCheck:
 
 	return graphic, nil
 }
+
+// func (assets *AssetFS) LoadFont(assetPath AssetPath, cache bool) (Graphic, error)

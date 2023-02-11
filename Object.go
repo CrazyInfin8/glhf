@@ -72,7 +72,7 @@ func (o *Object) GetScreenPosition(c *Camera) Point {
 		c = g.GetCamera()
 	}
 	var p Point = Point{o.x, o.y}
-	p.Sub(c.scroll.X*o.scrollFactor.X, c.scroll.Y*o.scrollFactor.Y)
+	p.Sub(c.scroll.X()*o.scrollFactor.X(), c.scroll.Y()*o.scrollFactor.Y())
 	return p
 }
 

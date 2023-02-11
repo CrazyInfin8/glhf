@@ -33,9 +33,10 @@ func (s *PlayState) Create() {
 
 	w, h := s.sprite.Size()
 
-	s.sprite.SetOrigin(glhf.Point{X: w / 2, Y: h / 2})
+	s.sprite.SetOrigin( w / 2, h / 2)
 	s.sprite.SetPosition(300, 200)
-	s.sprite.SetScale(glhf.Point{X: 0.5, Y: 0.5})
+	s.sprite.SetScale(0.5,0.5)
+
 	if !s.Add(s.sprite) {
 		panic("Couldn't add sprite")
 	}

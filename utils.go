@@ -42,6 +42,4 @@ func unwrap[T interface{}](t T, e error) T {
 
 type Rect = math.Rect
 
-type Point = math.Point
-
 type Graphic = driver.Graphic

@@ -15,6 +15,7 @@ type Game struct {
 	resizeMode ResizeMode
 
 	// pixelPerfect bool
+	assets      *AssetFS
 	defaultZoom float64
 }
 
@@ -66,7 +67,7 @@ func (g *Game) render(target driver.Graphic) {
 	g.state.Draw()
 
 	for _, c := range g.cameras {
-		mat := Identity()
+		mat := NewMatrixIdentity()
 		mat.Translate(c.x, c.y)
 		target.DrawGraphic(c.frame, mat)
 	}

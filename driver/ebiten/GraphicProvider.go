@@ -42,7 +42,7 @@ func (g Graphic) SubGraphic(r image.Rectangle) driver.Graphic {
 func matrixToGeoM(mat math.Matrix) ebiten.GeoM {
 	var matrix = struct {
 		a_1, b, c, d_1, tx, ty float64
-	}{mat.A - 1, mat.B, mat.C, mat.D - 1, mat.TX, mat.TY}
+	}{mat.A() - 1, mat.B(), mat.C(), mat.D() - 1, mat.TX(), mat.TY()}
 
 	return *(*ebiten.GeoM)(unsafe.Pointer(&matrix))
 }

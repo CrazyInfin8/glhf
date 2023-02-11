@@ -37,6 +37,40 @@ func NewSprite() *Sprite {
 	return &s
 }
 
+func (s *Sprite) Angle() float64 { return s.angle }
+
+func (s *Sprite) SetAngle(degrees float64) {
+	s.angleUpdated = s.angle != degrees
+	s.angle = degrees
+}
+
+func (s *Sprite) Origin() (x, y float64) { return s.origin.XY() }
+func (s *Sprite) SetOrigin(x, y float64) { s.origin.Set(x, y) }
+func (s *Sprite) Scale() (x, y float64)  { return s.scale.XY() }
+func (s *Sprite) SetScale(x, y float64)  { s.scale.Set(x, y) }
+func (s *Sprite) Offset() (x, y float64) { return s.offset.XY() }
+func (s *Sprite) SetOffset(x, y float64) { s.offset.Set(x, y) }
+
+func (s *Sprite) UpdateHitbox() {
+	s.SetSize(
+		s.scale.X()*float64(s.frameWidth),
+		s.scale.Y()*float64(s.frameHeight),
+	)
+	w, h := s.Size()
+	s.offset.Set(
+		-0.5*(w-float64(s.frameWidth)),
+		-0.5*(h-float64(s.frameHeight)),
+	)
+	s.CenterOrigin()
+}
+
+func (s *Sprite) CenterOrigin() {
+	s.origin.Set(
+		0.5*float64(s.frameWidth),
+		0.5*float64(s.frameHeight),
+	)
+}
+
 func (s *Sprite) MakeGraphic(width, height int, color color.Color) {
 	s.frame = NewFrameWithColor(width, height, color)
 
@@ -95,18 +129,23 @@ func (s *Sprite) ScreenBounds(c *Camera) Rect {
 
 	scrollFactor := s.ScrollFactor()
 
-	rect.X += c.scroll.X*scrollFactor.X - s.offset.X + s.origin.X - scaledOrigin.X
-	rect.Y += c.scroll.Y*scrollFactor.Y - s.offset.Y + s.origin.Y - scaledOrigin.Y
+	rect.SetPosition(
+		c.scroll.X()*scrollFactor.X()-s.offset.X()+s.origin.X()-scaledOrigin.X(),
+		c.scroll.Y()*scrollFactor.Y()-s.offset.Y()+s.origin.Y()-scaledOrigin.Y(),
+	)
 
-	rect.SetSize(float64(s.frameWidth)*s.scale.X, float64(s.frameHeight)*s.scale.Y)
+	rect.SetSize(
+		float64(s.frameWidth)*s.scale.X(),
+		float64(s.frameHeight)*s.scale.Y(),
+	)
 	return rect.RotatedBounds(s.angle, scaledOrigin)
 }
 
 func (s *Sprite) drawComplex(c *Camera, point Point) {
-	mat := Identity()
+	mat := NewMatrixIdentity()
 
-	mat.Translate(-s.origin.X, -s.origin.Y)
-	mat.Scale(s.scale.X, s.scale.Y)
+	mat.Translate(-s.origin.X(), -s.origin.Y())
+	mat.Scale(s.scale.XY())
 
 	if math.Mod(s.angle, 360) != 0 {
 		s.updateTrig()
@@ -115,7 +154,7 @@ func (s *Sprite) drawComplex(c *Camera, point Point) {
 	}
 
 	// point.Add(s.origin.X, s.origin.Y)
-	mat.Translate(point.X, point.Y)
+	mat.Translate(point.XY())
 
 	c.DrawGraphic(s.frame.graphic, mat)
 }
@@ -126,14 +165,3 @@ func (s *Sprite) updateTrig() {
 		s.angleUpdated = false
 	}
 }
-
-func (s *Sprite) SetAngle(degrees float64) {
-	s.angleUpdated = s.angle != degrees
-	s.angle = degrees
-}
-
-func (s *Sprite) SetOrigin(p Point) {
-	s.origin = p
-}
-
-func (s *Sprite) SetScale(p Point) { s.scale = p }
