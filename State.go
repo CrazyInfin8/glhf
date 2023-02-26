@@ -2,11 +2,12 @@ package glhf
 
 type (
 	State struct {
-		iGroup
+		_group
 		persistantUpdate, persistentDraw, destroySubstate bool
+
 		bgColor Color
 	}
-	iState = IState
+	_state = *State
 	IState interface {
 		IGroup
 		state() *State
@@ -16,20 +17,18 @@ type (
 
 func (s *State) state() *State {
 	checkNil(s, "State")
-	s.iGroup.group()
+	checkNil(s._group, "Group")
 	return s
 }
 
-var _ IState = NewState(0)
-
 func NewState(maxLen int) *State {
 	s := new(State)
-	s.iGroup = NewTypedGroup[IBasic](maxLen)
+	s._group = NewTypedGroup[IBasic](maxLen)
 	return s
 }
 
 func (s *State) Create() {}
 
 func (s *State) Draw() {
-	s.iGroup.Draw()
+	s._group.Draw()
 }

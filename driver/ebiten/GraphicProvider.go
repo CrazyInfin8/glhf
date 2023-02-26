@@ -17,25 +17,34 @@ func init() {
 	driver.Drivers.GraphicProvider = GraphicProvider{}
 }
 
-type Graphic struct{ *ebiten.Image }
+type Graphic struct {
+	*ebiten.Image
+	pixelPerfect bool
+}
 
 func (g Graphic) DrawGraphic(src driver.Graphic, matrix math.Matrix) {
 	geom := matrixToGeoM(matrix)
+	filter := ebiten.FilterLinear
+	if g.pixelPerfect {
+		filter = ebiten.FilterNearest
+	}
 	if src, ok := src.(Graphic); ok {
 		g.DrawImage(src.Image, &ebiten.DrawImageOptions{
-			GeoM: geom,
+			GeoM:   geom,
+			Filter: filter,
 		})
 		return
 	}
 	img := ebiten.NewImageFromImage(src)
 	g.DrawImage(img, &ebiten.DrawImageOptions{
-		GeoM: geom,
+		GeoM:   geom,
+		Filter: filter,
 	})
 }
 
 func (g Graphic) SubGraphic(r image.Rectangle) driver.Graphic {
 	img := g.SubImage(r)
-	return Graphic{img.(*ebiten.Image)}
+	return Graphic{img.(*ebiten.Image), g.pixelPerfect}
 }
 
 // matrixToGeoM converts a [glhf.Matrix] to an [ebiten.GeoM]
@@ -47,12 +56,18 @@ func matrixToGeoM(mat math.Matrix) ebiten.GeoM {
 	return *(*ebiten.GeoM)(unsafe.Pointer(&matrix))
 }
 
-func (GraphicProvider) NewGraphic(width, height int) driver.Graphic {
-	return Graphic{ebiten.NewImage(width, height)}
+func (GraphicProvider) NewGraphic(width, height int, opts driver.GraphicOptions) driver.Graphic {
+	return Graphic{
+		ebiten.NewImage(width, height),
+		opts.PixelPerfect,
+	}
 }
 
-func (GraphicProvider) NewGraphicFromImage(img image.Image) driver.Graphic {
-	return Graphic{ebiten.NewImageFromImage(img)}
+func (GraphicProvider) NewGraphicFromImage(img image.Image, opts driver.GraphicOptions) driver.Graphic {
+	return Graphic{
+		ebiten.NewImageFromImage(img),
+		opts.PixelPerfect,
+	}
 }
 
 func (g Graphic) ResizeGraphic(r image.Rectangle) driver.Graphic {
@@ -62,8 +77,12 @@ func (g Graphic) ResizeGraphic(r image.Rectangle) driver.Graphic {
 	img.DrawImage(g.Image, &ebiten.DrawImageOptions{
 		GeoM: geom,
 	})
-	return Graphic{img}
+	g.Dispose()
+	return Graphic{img, g.pixelPerfect}
 }
+
+func (g Graphic) LoadPixels(pixels []byte)    { g.Image.ReadPixels(pixels) }
+func (g Graphic) ReplacePixels(pixels []byte) { g.Image.ReplacePixels(pixels) }
 
 func (g Graphic) Fill(c color.Color) {
 	if c == nil {
@@ -75,5 +94,9 @@ func (g Graphic) Fill(c color.Color) {
 
 func (g Graphic) Clone() driver.Graphic {
 	img := ebiten.NewImageFromImage(g.Image)
-	return Graphic{img}
+	return Graphic{img, g.pixelPerfect}
+}
+
+func (g Graphic) Destroy() {
+	g.Image.Dispose()
 }

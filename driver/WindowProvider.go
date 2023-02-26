@@ -13,6 +13,8 @@ type WindowProviderConfig struct {
 
 	WindowMode WindowMode
 
+	PixelPerfect bool
+
 	ResetTimeDeltaFn func()
 	UpdateFn         func()
 	RenderFn         func(target Graphic)

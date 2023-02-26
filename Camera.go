@@ -5,7 +5,7 @@ import "image/color"
 
 type (
 	Camera struct {
-		iBasic
+		_basic
 		x, y          float64
 		width, height int
 		angle         float64
@@ -14,7 +14,7 @@ type (
 		scale     Point
 		viewAngle float64
 
-		frame Graphic
+		graphic *Graphic
 
 		pixelPerfect      bool
 		initialZoom, zoom float64
@@ -37,10 +37,11 @@ func (c *Camera) camera() *Camera {
 }
 
 func NewCamera(x, y float64, w, h int, zoom float64) *Camera {
-	c := Camera{
-		iBasic: NewBasic(),
-		x:      x, y: y, width: w, height: h,
-	}
+	c := new(Camera)
+
+	c._basic = NewBasic()
+	c.SetPosition(x, y)
+	c.SetSize(w, h)
 	// TODO: should width/height < 0 flip camera?
 	if c.width <= 0 {
 		c.width = g.cfg.StageWidth
@@ -58,13 +59,13 @@ func NewCamera(x, y float64, w, h int, zoom float64) *Camera {
 	c.initialZoom = zoom
 
 	c.calcViewOffset()
-	c.frame = driver.Drivers.NewGraphic(c.width, c.height)
+	c.graphic = newGraphic(nil, driver.Drivers.NewGraphic(c.width, c.height, driver.DefaultGraphicOptions()))
 
-	return &c
+	return c
 }
 
-func (c *Camera) DrawGraphic(src Graphic, matrix Matrix) {
-	c.frame.DrawGraphic(src, matrix)
+func (c *Camera) DrawGraphic(src *Graphic, matrix Matrix) {
+	c.graphic.Draw(src, matrix)
 }
 
 func (c *Camera) DrawPixels() {
@@ -88,9 +89,21 @@ func (c *Camera) calcViewOffset() {
 }
 
 func (c *Camera) Clear() {
-	c.frame.Fill(c.color)
+	c.graphic.Fill(c.color)
+}
+
+func (c *Camera) Position() (x, y float64) {
+	return c.x, c.y
 }
 
 func (c *Camera) SetPosition(x, y float64) {
 	c.x, c.y = x, y
+}
+
+func (c *Camera) Size() (width, height int) {
+	return width, height
+}
+
+func (c *Camera) SetSize(width, height int) {
+	c.width, c.height = width, height
 }

@@ -3,13 +3,14 @@ package glhf
 import "time"
 
 var idEnumerator = 0
+
 type (
 	Basic struct {
 		id int
 
 		alive, active, visible, exists bool
 	}
-	iBasic = IBasic
+	_basic = *Basic
 	IBasic interface {
 		basic() *Basic
 		ID() int
@@ -30,11 +31,14 @@ type (
 )
 
 func NewBasic() *Basic {
-	id := idEnumerator
+	b := new(Basic)
+	b.id = idEnumerator
 	idEnumerator++
-	return &Basic{
-		id, true, true, true, true,
-	}
+	b.active = true
+	b.alive = true
+	b.exists = true
+	b.visible = true
+	return b
 }
 
 func (b *Basic) basic() *Basic {
@@ -74,4 +78,4 @@ func (b *Basic) Update(time.Duration) {}
 
 func (b *Basic) Draw() {}
 
-func (b *Basic) String() string { return "[Basic]"}
+func (b *Basic) String() string { return "[Basic]" }

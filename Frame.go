@@ -8,15 +8,17 @@ import (
 
 type (
 	Frame struct {
-		graphic      Graphic
+		_graphic
 		flipX, flipY bool
 	}
 )
 
 func NewFrameWithColor(width, height int, c color.Color) *Frame {
 	f := new(Frame)
-	f.graphic = driver.Drivers.NewGraphic(width, height)
-	f.graphic.Fill(c)
+
+	graphic := driver.Drivers.NewGraphic(width, height, driver.DefaultGraphicOptions())
+	graphic.Fill(c)
+	f._graphic = newGraphic(nil, graphic)
 
 	return f
 }
@@ -28,14 +30,6 @@ func NewFrameFromImage(path AssetPath, cache, unique bool) (*Frame, error) {
 	}
 
 	f := new(Frame)
-	f.graphic = graphic
+	f._graphic = graphic
 	return f, nil
-}
-
-func (f *Frame) Width() int {
-	return f.graphic.Bounds().Dx()
-}
-
-func (f *Frame) Height() int {
-	return f.graphic.Bounds().Dy()
 }

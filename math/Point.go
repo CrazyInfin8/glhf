@@ -10,27 +10,27 @@ type Point [2]float64
 
 type Vector = Point
 
-func NewPoint(x, y float64) Point          { return Point{x, y} }
-func FromImagePoint(p image.Point) Point   { return Point{float64(p.X), float64(p.Y)} }
-func (p *Point) ToImagePoint() image.Point { return image.Point{int(p[0]), int(p[1])} }
-func (p *Point) Set(x, y float64)          { p[0], p[1] = x, y }
-func (p Point) X() float64                 { return p[0] }
-func (p Point) Y() float64                 { return p[1] }
-func (p *Point) SetX(x float64)            { p[0] = x }
-func (p *Point) SetY(y float64)            { p[1] = y }
-func (p Point) XY() (x, y float64)         { return p[0], p[1] }
-func (p Point) YX() (y, x float64)         { return p[1], p[0] }
-func (p *Point) SetXY(x, y float64)        { p[0], p[1] = x, y }
-func (p *Point) SetYX(y, x float64)        { p[0], p[1] = x, y }
-func (p *Point) Add(x, y float64)          { p[0] += x; p[1] += y }
-func (p *Point) AddPoint(p2 Point)         { p[0] += p2[0]; p[1] += p2[1] }
-func (p *Point) Sub(x, y float64)          { p[0] -= x; p[1] -= y }
-func (p *Point) SubPoint(p2 Point)         { p[0] -= p2[0]; p[1] -= p2[1] }
-func (p *Point) Scale(k float64)           { p[0] *= k; p[1] *= k }
-func (p *Point) Mult(x, y float64)         { p[0] *= x; p[1] *= y }
-func (p *Point) MultPoint(p2 Point)        { p[0] *= p2[0]; p[1] *= p2[1] }
-func (p *Point) Div(x, y float64)          { p[0] /= x; p[1] /= y }
-func (p *Point) DivPoint(p2 Point)         { p[0] /= p2[0]; p[1] /= p2[1] }
+func NewPoint(x, y float64) Point                { return Point{x, y} }
+func NewPointFromImagePoint(p image.Point) Point { return Point{float64(p.X), float64(p.Y)} }
+func (p *Point) ToImagePoint() image.Point       { return image.Point{int(p[0]), int(p[1])} }
+func (p *Point) Set(x, y float64)                { p[0], p[1] = x, y }
+func (p Point) X() float64                       { return p[0] }
+func (p Point) Y() float64                       { return p[1] }
+func (p *Point) SetX(x float64)                  { p[0] = x }
+func (p *Point) SetY(y float64)                  { p[1] = y }
+func (p Point) XY() (x, y float64)               { return p[0], p[1] }
+func (p Point) YX() (y, x float64)               { return p[1], p[0] }
+func (p *Point) SetXY(x, y float64)              { p[0], p[1] = x, y }
+func (p *Point) SetYX(y, x float64)              { p[0], p[1] = x, y }
+func (p *Point) Add(x, y float64)                { p[0] += x; p[1] += y }
+func (p *Point) AddPoint(p2 Point)               { p[0] += p2[0]; p[1] += p2[1] }
+func (p *Point) Sub(x, y float64)                { p[0] -= x; p[1] -= y }
+func (p *Point) SubPoint(p2 Point)               { p[0] -= p2[0]; p[1] -= p2[1] }
+func (p *Point) Scale(k float64)                 { p[0] *= k; p[1] *= k }
+func (p *Point) Mult(x, y float64)               { p[0] *= x; p[1] *= y }
+func (p *Point) MultPoint(p2 Point)              { p[0] *= p2[0]; p[1] *= p2[1] }
+func (p *Point) Div(x, y float64)                { p[0] /= x; p[1] /= y }
+func (p *Point) DivPoint(p2 Point)               { p[0] /= p2[0]; p[1] /= p2[1] }
 
 func (p *Point) Rotate(pivot Point, angle float64) {
 	sin, cos := math.Sincos(angle * ToRadians)

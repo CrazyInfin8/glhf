@@ -3,6 +3,7 @@ package color
 import (
 	"image/color"
 	"math"
+	"strings"
 
 	gmath "github.com/crazyinfin8/glhf/math"
 )
@@ -41,6 +42,24 @@ func (colorModel) Convert(c color.Color) color.Color {
 	return Color(((a & 0xFF00) << 16) | ((r & 0xFF00) << 8) | (g & 0xFF00) | (b >> 8))
 }
 
+func NewColor(d ...byte) Color {
+	switch l := len(d); l {
+	case 1:
+		return NewColorFromRGB(d[0], d[0], d[0])
+	case 2:
+		return NewColorFromRGBA(d[0], d[0], d[0], d[1])
+	case 3:
+		return NewColorFromRGB(d[0], d[1], d[2])
+	default:
+		if len(d) < 4 {
+			return 0
+		}
+		fallthrough
+	case 4:
+		return NewColorFromRGBA(d[0], d[1], d[2], d[3])
+	}
+}
+
 func NewColorFromRGB(r, g, b byte) Color {
 	return 0xFF000000 | (Color(r) << 16) | (Color(g) << 8) | Color(b)
 }
@@ -75,6 +94,89 @@ func NewColorFromHSL(hue, saturation, lightness float64) Color {
 	return c
 }
 
+func NewColorFromHSLA(hue, saturation, lightness, alpha float64) Color {
+	c := Color(floatChannelToByte(alpha)) << 24
+	c.SetHSB(hue, saturation, lightness)
+	return c
+}
+
+func hexToByte(d byte) (byte, bool) {
+	switch {
+	case d >= '0' && d <= '9':
+		return d - '0', true
+	case d >= 'a' && d <= 'f':
+		return d - 'a', true
+	case d >= 'A' && d <= 'F':
+		return d - 'A', true
+	}
+	return 0, false
+}
+
+func NewColorFromHex(hex string) Color {
+	hex = strings.TrimSpace(hex)
+	if hex[0] == '#' {
+		hex = hex[1:]
+	} else if hex[0] == '0' && hex[1] == 'x' {
+		hex = hex[2:]
+	}
+	var a, i, d byte = 0xFF, 0, 0
+	var rgb [3]byte
+	var ok bool
+parse:
+	switch len(hex) {
+	case 4:
+		a, ok = hexToByte(hex[i])
+		i++
+		if !ok {
+			break parse
+		}
+		a &= a << 4
+		fallthrough
+	case 3:
+		for j := range rgb {
+			rgb[j], ok = hexToByte(hex[i])
+			i++
+			if !ok {
+				break parse
+			}
+			rgb[j] &= rgb[j]
+		}
+	case 8:
+		a, ok = hexToByte(hex[i])
+		i++
+		if !ok {
+			break parse
+		}
+		d, ok = hexToByte(hex[i])
+		i++
+		if !ok {
+			break parse
+		}
+		a &= d << 4
+		fallthrough
+	case 6:
+		for j := range rgb {
+			rgb[j], ok = hexToByte(hex[i])
+			i++
+			if !ok {
+				break parse
+			}
+
+			d, ok = hexToByte(hex[i])
+			i++
+			if !ok {
+				break parse
+			}
+
+			rgb[j] &= d << 4
+		}
+	}
+	if !ok {
+		return 0
+	}
+	return NewColorFromRGBA(rgb[0], rgb[1], rgb[2], a)
+}
+
 func (c *Color) SetRGB(r, g, b byte) {
 	*c = (*c & 0xFF000000) | (Color(r) << 16) | (Color(g) << 8) | Color(b)
 }
@@ -104,6 +206,8 @@ func (c Color) Red() byte   { return byte(c >> 16) }
 func (c Color) Green() byte { return byte(c >> 8) }
 func (c Color) Blue() byte  { return byte(c) }
 
+func (c Color) Bytes() [4]byte { return [4]byte{c.Red(), c.Green(), c.Blue(), c.Alpha()} }
+
 func (c *Color) SetAlpha(a byte) { *c = (*c & 0x00FFFFFF) | (Color(a) << 24) }
 func (c *Color) SetRed(r byte)   { *c = (*c & 0xFF00FFFF) | (Color(r) << 16) }
 func (c *Color) SetGreen(g byte) { *c = (*c & 0xFFFF00FF) | (Color(g) << 8) }
@@ -119,7 +223,7 @@ func (c *Color) SetRedFloat(r float64)   { c.SetRed(floatChannelToByte(r)) }
 func (c *Color) SetGreenFloat(g float64) { c.SetGreen(floatChannelToByte(g)) }
 func (c *Color) SetBlueFloat(b float64)  { c.SetBlue(floatChannelToByte(b)) }
 
-func floatChannelToByte(v float64) byte { return byte(math.Round(gmath.Clamp(v, 0, 1) * 255))}
+func floatChannelToByte(v float64) byte { return byte(math.Round(gmath.Clamp(v, 0, 1) * 255)) }
 
 func (c Color) Hue() (hue float64) {
 	r, g, b := c.RedFloat(), c.GreenFloat(), c.BlueFloat()

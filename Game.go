@@ -62,14 +62,15 @@ func (g *Game) update() {
 
 func (g *Game) render(target driver.Graphic) {
 	for _, c := range g.cameras {
-		c.frame.Fill(c.color)
+		c.graphic.Fill(c.color)
 	}
 	g.state.Draw()
 
 	for _, c := range g.cameras {
 		mat := NewMatrixIdentity()
 		mat.Translate(c.x, c.y)
-		target.DrawGraphic(c.frame, mat)
+		c.graphic.UpdatePixels()
+		target.DrawGraphic(c.graphic.texture, mat)
 	}
 }
 

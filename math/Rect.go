@@ -11,7 +11,7 @@ func NewRect(x, y, width, height float64) Rect {
 	return Rect{x, y, width, height}
 }
 
-func FromImageRect(r image.Rectangle) Rect {
+func NewRectFromImageRect(r image.Rectangle) Rect {
 	return Rect{
 		float64(r.Min.X),
 		float64(r.Min.Y),

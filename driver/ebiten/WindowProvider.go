@@ -35,7 +35,7 @@ func (w *WindowProvider) Update() error {
 }
 
 func (w *WindowProvider) Draw(screen *ebiten.Image) {
-	w.Config.RenderFn(Graphic{screen})
+	w.Config.RenderFn(Graphic{screen, w.Config.PixelPerfect})
 }
 
 func (w *WindowProvider) Layout(width, height int) (newWidth, newHeight int) {

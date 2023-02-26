@@ -6,28 +6,28 @@ import (
 )
 
 type colorTest struct {
-	color Color
-
+	color                                  Color
+	hex                                    string
 	hue, saturation, brightness, lightness float64
 }
 
 var cases = []colorTest{
-	{0x000000, 0, 0, 0, 0},     // Black
-	{0xFFFFFF, 0, 0, 1, 0},     // White
-	{0xFF0000, 0, 1, 1, 0},     // Red
-	{0x00FF00, 120, 1, 1, 0},   // Lime
-	{0x0000FF, 240, 1, 1, 0},   // Blue
-	{0xFFFF00, 60, 1, 1, 0},    // Yellow
-	{0x00FFFF, 180, 1, 1, 0},   // Cyan
-	{0xFF00FF, 300, 1, 1, 0},   // Magenta
-	{0xBFBFBF, 0, 0, 0.75, 0},  // Silver
-	{0x808080, 0, 0, 0.5, 0},   // Gray
-	{0x800000, 0, 1, 0.5, 0},   // Maroon
-	{0x808000, 60, 1, 0.5, 0},  // Olive
-	{0x008000, 120, 1, 0.5, 0}, // Green
-	{0x800080, 300, 1, 0.5, 0}, // Purple
-	{0x008080, 180, 1, 0.5, 0}, // Teal
-	{0x000080, 240, 1, 0.5, 0}, // Navy
+	{0x000000, "000", 0, 0, 0, 0},        // Black
+	{0xFFFFFF, "FFF", 0, 0, 1, 0},        // White
+	{0xFF0000, "F00", 0, 1, 1, 0},        // Red
+	{0x00FF00, "0F0", 120, 1, 1, 0},      // Lime
+	{0x0000FF, "00F", 240, 1, 1, 0},      // Blue
+	{0xFFFF00, "FF0", 60, 1, 1, 0},       // Yellow
+	{0x00FFFF, "0FF", 180, 1, 1, 0},      // Cyan
+	{0xFF00FF, "F0F", 300, 1, 1, 0},      // Magenta
+	{0xBFBFBF, "BFBFBF", 0, 0, 0.75, 0},  // Silver
+	{0x808080, "808080", 0, 0, 0.5, 0},   // Gray
+	{0x800000, "800000", 0, 1, 0.5, 0},   // Maroon
+	{0x808000, "808000", 60, 1, 0.5, 0},  // Olive
+	{0x008000, "008000", 120, 1, 0.5, 0}, // Green
+	{0x800080, "800080", 300, 1, 0.5, 0}, // Purple
+	{0x008080, "008080", 180, 1, 0.5, 0}, // Teal
+	{0x000080, "000080", 240, 1, 0.5, 0}, // Navy
 }
 
 func Test(t *testing.T) {
@@ -57,3 +57,5 @@ func testHSBAboutMatches(c1, c2 Color) bool {
 		floatAboutEqual(c1.Saturation(), c2.Saturation(), 0.0001) &&
 		floatAboutEqual(c1.Brightness(), c2.Brightness(), 0.0001)
 }
+
+func TestHex(t *testing.T) {}

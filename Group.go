@@ -6,7 +6,7 @@ import (
 
 type (
 	TypedGroup[T IBasic] struct {
-		iBasic
+		_basic
 		maxSize int
 		// Cannot compare type T to nil, so keep array as IBasics
 		members []IBasic
@@ -29,13 +29,13 @@ type (
 	ISpriteGroup = ITypedGroup[ISprite]
 
 	Group  = TypedGroup[IBasic]
-	iGroup = IGroup
+	_group = *Group
 	IGroup = ITypedGroup[IBasic]
 )
 
 func NewTypedGroup[T IBasic](maxLen int) *TypedGroup[T] {
 	g := new(TypedGroup[T])
-	g.iBasic = NewBasic()
+	g._basic = NewBasic()
 	if maxLen > 0 {
 		g.maxSize = maxLen
 		g.members = make([]IBasic, 0, maxLen)
@@ -53,6 +53,7 @@ func NewSpriteGroup(maxLen int) *SpriteGroup {
 
 func (g *TypedGroup[T]) group() *TypedGroup[T] {
 	checkNil(g, "TypedGroup")
+	checkNil(g._basic, "Basic")
 	return g
 }
 

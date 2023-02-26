@@ -51,7 +51,7 @@ func (assetPath AssetPath) Clean() (AssetPath, error) {
 type AssetFS struct {
 	mounted map[string]fs.FS
 
-	loadedImages map[AssetPath]Graphic
+	loadedImages map[AssetPath]*Graphic
 	// loadedData   map[AssetPath][]byte
 }
 
@@ -129,7 +129,7 @@ func (assets *AssetFS) MountFS(mountName string, fs fs.FS) error {
 	return nil
 }
 
-func (assets *AssetFS) LoadImage(assetPath AssetPath, cache, unique bool) (Graphic, error) {
+func (assets *AssetFS) LoadImage(assetPath AssetPath, cache, unique bool) (*Graphic, error) {
 	assetPath, err := assetPath.Clean()
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func (assets *AssetFS) LoadImage(assetPath AssetPath, cache, unique bool) (Graph
 
 	if graphic, ok := assets.loadedImages[assetPath]; ok {
 		if unique {
-			return graphic.Clone(), nil
+			return newGraphic(nil, graphic.texture.Clone()), nil
 		}
 		return graphic, nil
 	}
@@ -163,16 +163,16 @@ skipCacheCheck:
 		return nil, err
 	}
 
-	graphic := driver.Drivers.NewGraphicFromImage(img)
+	graphic := driver.Drivers.NewGraphicFromImage(img, driver.GraphicOptions{false, false})
 
 	if cache {
 		if assets.loadedImages == nil {
-			assets.loadedImages = make(map[AssetPath]driver.Graphic)
+			assets.loadedImages = make(map[AssetPath]*Graphic)
 		}
-		assets.loadedImages[assetPath] = graphic
+		assets.loadedImages[assetPath] = newGraphic(nil, graphic)
 	}
 
-	return graphic, nil
+	return newGraphic(nil, graphic), nil
 }
 
 // func (assets *AssetFS) LoadFont(assetPath AssetPath, cache bool) (Graphic, error)

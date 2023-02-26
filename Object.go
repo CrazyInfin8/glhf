@@ -2,14 +2,14 @@ package glhf
 
 type (
 	Object struct {
-		iBasic
+		_basic
 		x, y, width, height float64
 
 		scrollFactor Point
 
 		angle float64
 	}
-	iObject = IObject
+	_object = *Object
 	IObject interface {
 		IBasic
 		object() *Object
@@ -26,7 +26,7 @@ type (
 		String() string
 		GetScreenPosition(c *Camera) Point
 		ScrollFactor() Point
-		SetScrollFactor(p Point)
+		SetScrollFactor(x, y float64)
 	}
 )
 
@@ -36,12 +36,14 @@ var (
 
 func NewObject(x, y, w, h float64) *Object {
 	o := Object{x: x, y: y, width: w, height: h}
-	o.iBasic = NewBasic()
+	o._basic = NewBasic()
 	return &o
 }
 
 func (o *Object) object() *Object {
 	checkNil(o, "Object")
+	checkNil(o._basic, "Basic")
+	o.basic()
 	return o
 }
 
@@ -76,5 +78,5 @@ func (o *Object) GetScreenPosition(c *Camera) Point {
 	return p
 }
 
-func (o *Object) ScrollFactor() Point     { return o.scrollFactor }
-func (o *Object) SetScrollFactor(p Point) { o.scrollFactor = p }
+func (o *Object) ScrollFactor() Point          { return o.scrollFactor }
+func (o *Object) SetScrollFactor(x, y float64) { o.scrollFactor.Set(x, y) }

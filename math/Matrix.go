@@ -84,9 +84,9 @@ func (m *Matrix) Invert() {
 
 func (m *Matrix) RotateTrig(sin, cos float64) {
 	m.Set(
-		m.A()*cos-m.B()*sin, m.A()*sin+m.B()*cos,
-		m.C()*cos-m.D()*sin, m.C()*sin+m.D()*cos,
-		m.TX()*cos+m.TY()*sin, m.TY()*cos-m.TX()*sin,
+		m.A()*cos+m.B()*sin, m.B()*cos-m.A()*sin,
+		m.C()*cos+m.D()*sin, m.D()*cos-m.C()*sin,
+		m.TX()*cos-m.TY()*sin, m.TY()*cos+m.TX()*sin,
 	)
 }
 

@@ -7,8 +7,7 @@ import (
 
 type (
 	Sprite struct {
-		iObject
-		frame  *Frame
+		_object
 		offset Point
 		origin Point
 		scale  Point
@@ -17,9 +16,13 @@ type (
 		angleUpdated       bool
 		sinAngle, cosAngle float64
 
+		frameCollection *FrameCollection
+		frame           *Frame
+		graphic         *Graphic
+
 		frameWidth, frameHeight int
 	}
-	iSprite = ISprite
+	_sprite = *Sprite
 	ISprite interface {
 		IObject
 		sprite() *Sprite
@@ -28,9 +31,9 @@ type (
 
 func NewSprite() *Sprite {
 	s := Sprite{}
-	s.iObject = NewObject(0, 0, 0, 0)
+	s._object = NewObject(0, 0, 0, 0)
 	s.scale = Point{1, 1}
-	s.SetScrollFactor(Point{1, 1})
+	s.SetScrollFactor(1, 1)
 
 	s.sinAngle, s.cosAngle = 0, 1 // results when s.angle == 0
 
@@ -52,14 +55,13 @@ func (s *Sprite) Offset() (x, y float64) { return s.offset.XY() }
 func (s *Sprite) SetOffset(x, y float64) { s.offset.Set(x, y) }
 
 func (s *Sprite) UpdateHitbox() {
-	s.SetSize(
-		s.scale.X()*float64(s.frameWidth),
-		s.scale.Y()*float64(s.frameHeight),
-	)
+	s.width = s.scale.X() * float64(s.frameWidth)
+	s.height = s.scale.Y() * float64(s.frameHeight)
+
 	w, h := s.Size()
 	s.offset.Set(
-		-0.5*(w-float64(s.frameWidth)),
-		-0.5*(h-float64(s.frameHeight)),
+		-(w - float64(s.frameWidth)),
+		-(h - float64(s.frameHeight)),
 	)
 	s.CenterOrigin()
 }
@@ -71,6 +73,20 @@ func (s *Sprite) CenterOrigin() {
 	)
 }
 
+func (s *Sprite) CenterOffset(adjustPosition bool) {
+	s.offset.Set(
+		(float64(s.frameWidth)-s.Width())*0.5,
+		(float64(s.frameHeight)-s.Height())*0.5,
+	)
+	if adjustPosition {
+		x, y := s.Position()
+
+		x += s.offset.X()
+		y += s.offset.Y()
+		s.SetPosition(x, y)
+	}
+}
+
 func (s *Sprite) MakeGraphic(width, height int, color color.Color) {
 	s.frame = NewFrameWithColor(width, height, color)
 
@@ -79,20 +95,31 @@ func (s *Sprite) MakeGraphic(width, height int, color color.Color) {
 	s.SetSize(float64(width), float64(height))
 }
 
-func (s *Sprite) LoadGraphics(path AssetPath) (err error) {
-	s.frame, err = NewFrameFromImage(path, true, false)
+func (s *Sprite) LoadGraphics(path AssetPath) error {
+	frame, err := NewFrameFromImage(path, true, false)
 	if err != nil {
 		return err
 	}
-
-	s.frameWidth = s.frame.Width()
-	s.frameHeight = s.frame.Height()
-
-	s.SetSize(float64(s.frame.Width()), float64(s.frame.Height()))
-	return err
+	s.SetFrameCollection(NewFrameCollection(frame))
+	return nil
 }
 
-func (s *Sprite) sprite() *Sprite { return s }
+func (s *Sprite) LoadAnimatedGraphics(path AssetPath, width, height float64) {
+
+}
+
+func (s *Sprite) sprite() *Sprite {
+	checkNil(s, "Sprite")
+	checkNil(s._object, "Object")
+	return s
+}
+
+func (s *Sprite) ResetFrameSize() {
+	if s.frame != nil {
+		s.frameWidth = s.frame.Width()
+		s.frameHeight = s.frame.Height()
+	}
+}
 
 func (s *Sprite) Draw() {
 	if s.frame == nil {
@@ -104,7 +131,9 @@ func (s *Sprite) Draw() {
 		}
 
 		point := s.GetScreenPosition(c)
-		point.SubPoint(s.offset)
+		scaledOffset := s.offset
+		scaledOffset.MultPoint(s.scale)
+		point.SubPoint(scaledOffset)
 
 		s.drawComplex(c, point)
 	}
@@ -147,16 +176,17 @@ func (s *Sprite) drawComplex(c *Camera, point Point) {
 	mat.Translate(-s.origin.X(), -s.origin.Y())
 	mat.Scale(s.scale.XY())
 
-	if math.Mod(s.angle, 360) != 0 {
+	if math.Mod(s.angle, 90) == 0 {
+		mat.Rotate(s.angle)
+	} else {
 		s.updateTrig()
 		mat.RotateTrig(s.sinAngle, s.cosAngle)
-		// mat.Rotate(s.angle)
 	}
 
-	// point.Add(s.origin.X, s.origin.Y)
+	point.Add(s.origin.X()*s.scale.X(), s.origin.Y()*s.scale.Y())
 	mat.Translate(point.XY())
 
-	c.DrawGraphic(s.frame.graphic, mat)
+	c.DrawGraphic(s.frame._graphic, mat)
 }
 
 func (s *Sprite) updateTrig() {
@@ -164,4 +194,27 @@ func (s *Sprite) updateTrig() {
 		s.sinAngle, s.cosAngle = math.Sincos(s.angle * ToRadians)
 		s.angleUpdated = false
 	}
+}
+
+func (s *Sprite) SetFrameCollection(collection *FrameCollection) {
+	// s.animations.destroy()
+	// s.animations = nil
+	if collection == nil {
+		s.frameCollection = nil
+		s.frame = nil
+		s.graphic = nil
+		return
+	}
+	s.frameCollection = collection
+	s.SetFrameIndex(0)
+}
+
+func (s *Sprite) NumFrames() int { return s.frameCollection.NumFrames() }
+
+func (s *Sprite) SetFrameIndex(index int) {
+	frame, ok := s.frameCollection.GetFrame(index)
+	if ok {
+		s.frame = frame
+	}
+	s.ResetFrameSize()
 }
