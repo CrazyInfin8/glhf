@@ -48,10 +48,16 @@ func (assetPath AssetPath) Clean() (AssetPath, error) {
 	return assetPath, nil
 }
 
+type ColoredGraphics struct {
+	Width, Height int
+	Color Color
+}
+
 type AssetFS struct {
 	mounted map[string]fs.FS
 
 	loadedImages map[AssetPath]*Graphic
+	loadedColors map[ColoredGraphics]*Graphic
 	// loadedData   map[AssetPath][]byte
 }
 
@@ -60,6 +66,13 @@ func NewAssetFS() *AssetFS {
 
 	assets.mounted = make(map[string]fs.FS)
 
+	return assets
+}
+
+func GetAssetFS() *AssetFS {
+	if assets == nil {
+		assets = NewAssetFS()
+	}
 	return assets
 }
 
@@ -115,6 +128,7 @@ func (assets *AssetFS) mountZip(mountName string, reader io.ReaderAt, size int64
 	return nil
 }
 
+
 func (assets *AssetFS) MountFS(mountName string, fs fs.FS) error {
 	if fs == nil {
 		return ErrFSIsNil
@@ -127,6 +141,30 @@ func (assets *AssetFS) MountFS(mountName string, fs fs.FS) error {
 
 	assets.mounted[mountName] = fs
 	return nil
+}
+
+func (assets *AssetFS) NewImageFromColor(c ColoredGraphics, cache, unique bool) (*Graphic, error) {
+	if !cache {
+		goto skipCacheCheck
+	}
+
+	if graphic, ok := assets.loadedColors[c]; ok {
+		if unique {
+			return newGraphic(nil, graphic.texture.Clone()), nil
+		}
+	}
+
+skipCacheCheck:
+	graphic := newGraphic(nil, driver.Drivers.NewGraphic(c.Width, c.Height, driver.GraphicOptions{false, false}))
+
+	if cache {
+		if assets.loadedColors == nil {
+			assets.loadedColors = make(map[ColoredGraphics]*Graphic)
+		}
+		assets.loadedColors[c] = graphic
+	}
+
+	return graphic, nil
 }
 
 func (assets *AssetFS) LoadImage(assetPath AssetPath, cache, unique bool) (*Graphic, error) {
@@ -163,16 +201,16 @@ skipCacheCheck:
 		return nil, err
 	}
 
-	graphic := driver.Drivers.NewGraphicFromImage(img, driver.GraphicOptions{false, false})
+	graphic := newGraphic(nil, driver.Drivers.NewGraphicFromImage(img, driver.GraphicOptions{false, false}))
 
 	if cache {
 		if assets.loadedImages == nil {
 			assets.loadedImages = make(map[AssetPath]*Graphic)
 		}
-		assets.loadedImages[assetPath] = newGraphic(nil, graphic)
+		assets.loadedImages[assetPath] = graphic
 	}
 
-	return newGraphic(nil, graphic), nil
+	return graphic, nil
 }
 
 // func (assets *AssetFS) LoadFont(assetPath AssetPath, cache bool) (Graphic, error)

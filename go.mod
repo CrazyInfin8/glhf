@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/dave/jennifer v1.6.0
 	github.com/ebitengine/purego v0.2.0 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
 	github.com/hajimehoshi/file2byteslice v1.0.0 // indirect

@@ -13,11 +13,11 @@ func TestTypes(t *testing.T) {
 	var (
 		_ IBasic              = NewBasic()
 		_ IObject             = NewObject(0, 0, 0, 0)
-		_ ISprite             = NewSprite()
+		_ ISprite             = NewSprite(nil)
 		_ ITypedGroup[IBasic] = NewTypedGroup[IBasic](0)
 		_ IGroup              = NewGroup(0)
 		_ ISpriteGroup        = NewSpriteGroup(0)
-		_ IState              = NewState(0)
+		_ IState              = NewState(nil, 0)
 		_ ICamera             = NewCamera(0, 0, 0, 0, 0)
 	)
 }

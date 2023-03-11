@@ -1,6 +1,10 @@
 package glhf
 
-import "github.com/crazyinfin8/glhf/driver"
+import (
+	"time"
+
+	"github.com/crazyinfin8/glhf/driver"
+)
 
 var g *Game
 
@@ -15,6 +19,8 @@ type Game struct {
 	resizeMode ResizeMode
 
 	// pixelPerfect bool
+	ptime time.Time
+
 	assets      *AssetFS
 	defaultZoom float64
 }
@@ -57,7 +63,10 @@ func NewGame(width, height int) *Game {
 func (g *Game) resetTimeDelta() {}
 
 func (g *Game) update() {
-	g.state.Update(0)
+	now := time.Now()
+	since := now.Sub(g.ptime)
+	g.ptime = now
+	g.state.Update(since)
 }
 
 func (g *Game) render(target driver.Graphic) {

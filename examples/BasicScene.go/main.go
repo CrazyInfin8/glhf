@@ -19,10 +19,9 @@ type PlayState struct {
 }
 
 func (s *PlayState) Create() {
-	s.State = NewState(0)
-	s.State.Create()
+	s.State = NewState(s, 0)
 
-	s.sprite = NewSprite()
+	s.sprite = NewSprite(nil)
 
 	err := s.sprite.LoadGraphics(NewAssetPath("glhf:assets/laszlo.png"))
 	if err != nil {

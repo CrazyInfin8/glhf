@@ -20,9 +20,6 @@ type (
 	}
 
 	_graphic   = *Graphic
-	SubGraphic struct {
-		parent *Graphic
-	}
 )
 
 func newGraphic(parent *Graphic, texture driver.Graphic) *Graphic {

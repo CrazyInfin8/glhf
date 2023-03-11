@@ -3,11 +3,14 @@ package glhf
 import (
 	"image/color"
 	"math"
+	"time"
 )
 
 type (
 	Sprite struct {
 		_object
+		parent ISprite
+
 		offset Point
 		origin Point
 		scale  Point
@@ -18,7 +21,10 @@ type (
 
 		frameCollection *FrameCollection
 		frame           *Frame
+		frameIndex      int
 		graphic         *Graphic
+
+		animations *AnimationController
 
 		frameWidth, frameHeight int
 	}
@@ -29,15 +35,15 @@ type (
 	}
 )
 
-func NewSprite() *Sprite {
-	s := Sprite{}
+func NewSprite(parent ISprite) *Sprite {
+	s := new(Sprite)
+
 	s._object = NewObject(0, 0, 0, 0)
+	s.parent = parent
 	s.scale = Point{1, 1}
 	s.SetScrollFactor(1, 1)
 
-	s.sinAngle, s.cosAngle = 0, 1 // results when s.angle == 0
-
-	return &s
+	return s
 }
 
 func (s *Sprite) Angle() float64 { return s.angle }
@@ -104,8 +110,13 @@ func (s *Sprite) LoadGraphics(path AssetPath) error {
 	return nil
 }
 
-func (s *Sprite) LoadAnimatedGraphics(path AssetPath, width, height float64) {
-
+func (s *Sprite) LoadAnimatedGraphics(path AssetPath, width, height int) error {
+	frame, err := NewFrameFromImage(path, true, false)
+	if err != nil {
+		return err
+	}
+	s.SetFrameCollection(NewFrameCollectionFromAnimation(frame, width, height))
+	return nil
 }
 
 func (s *Sprite) sprite() *Sprite {
@@ -118,6 +129,12 @@ func (s *Sprite) ResetFrameSize() {
 	if s.frame != nil {
 		s.frameWidth = s.frame.Width()
 		s.frameHeight = s.frame.Height()
+	}
+}
+
+func (s *Sprite) Update(elapsed time.Duration) {
+	if s.animations != nil {
+		s.animations.Update(elapsed)
 	}
 }
 
@@ -209,12 +226,29 @@ func (s *Sprite) SetFrameCollection(collection *FrameCollection) {
 	s.SetFrameIndex(0)
 }
 
+func (s *Sprite) FrameCollection() *FrameCollection {
+	return s.frameCollection
+}
+
 func (s *Sprite) NumFrames() int { return s.frameCollection.NumFrames() }
 
 func (s *Sprite) SetFrameIndex(index int) {
 	frame, ok := s.frameCollection.GetFrame(index)
-	if ok {
-		s.frame = frame
+	if !ok {
+		return
 	}
+	s.frame = frame
+	s.frameIndex = index
 	s.ResetFrameSize()
+}
+
+func (s *Sprite) AnimationController() *AnimationController {
+	if s.animations == nil {
+		if s.parent != nil {
+			s.animations = NewAnimationController(s.parent)
+		} else {
+			s.animations = NewAnimationController(s)
+		}
+	}
+	return s.animations
 }

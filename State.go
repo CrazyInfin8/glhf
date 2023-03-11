@@ -3,6 +3,8 @@ package glhf
 type (
 	State struct {
 		_group
+		parent IState
+
 		persistantUpdate, persistentDraw, destroySubstate bool
 
 		bgColor Color
@@ -21,9 +23,10 @@ func (s *State) state() *State {
 	return s
 }
 
-func NewState(maxLen int) *State {
+func NewState(parent IState, maxLen int) *State {
 	s := new(State)
 	s._group = NewTypedGroup[IBasic](maxLen)
+	s.parent = parent
 	return s
 }
 
